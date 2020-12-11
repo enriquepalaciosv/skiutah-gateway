@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  skiutah-gateway
+
+  Sample SAM Template to fecth snowfall data from Ski Utah
+
+Parameters:
+  SkiUtahEndpoint:
+    Type: String
+  SkiUtahUser:
+    Type: String
+  SkiUtahPassword:
+    Type: String  
+  ParameterName:
+    Type: String
+  Region:
+    Type: String
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+    Environment:
+      Variables:
+        SKI_UTAH_ENDPOINT: !Ref SkiUtahEndpoint
+        SKI_UTAH_USER: !Ref SkiUtahUser
+        SKI_UTAH_PASSWORD: !Ref SkiUtahPassword
+        PARAMETER_NAME: !Ref ParameterName
+        REGION: !Ref Region
+
+Resources:
+  SkiUtahGatewayFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: src/
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x
+      Policies:
+        - Statement:
+          - Sid: SSMParameterStoreFullAccess
+            Effect: Allow
+            Action:
+              - ssm:*              
+            Resource: '*'
+
+Outputs:
+  SkiUtahGatewayFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt SkiUtahGatewayFunction.Arn
+  SkiUtahGatewayFunctionIamRole:
+    Description: "Implicit IAM Role created for SkiUtahGateway function"
+    Value: !GetAtt SkiUtahGatewayFunctionRole.Arn
